@@ -1,0 +1,954 @@
+\documentclass[serif,aspectratio=169]{beamer}
+\usepackage{fontspec,xunicode,xltxtra}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{siunitx}
+\usepackage{wasysym}            % male and female symbols
+
+\usefonttheme{professionalfonts}
+
+\XeTeXlinebreaklocale zh
+\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
+
+\setmainfont{FangSong}
+\renewcommand{\baselinestretch}{1.25}
+
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{目录}  %\insertsection to display section title                                                                             
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}
+    \frametitle{目录}  %\insertsection to display section title                                                                             
+    \tableofcontents[currentsubsection]
+  \end{frame}
+}
+
+\addtobeamertemplate{navigation symbols}{}{%
+  \usebeamerfont{footline}%
+  \usebeamercolor[fg]{footline}%
+  \hspace{1em}%
+  \insertframenumber/\inserttotalframenumber
+}
+%\setbeamercovered{invisible}
+
+\begin{document}
+
+\title{\fontspec{LiSu}第三讲： A 及其逆矩阵、模型举例，基因组选择}
+\author{于希江}
+\date{\tiny{~{二〇一九·十月} \\青岛}}
+\institute{挪威生命科学大学畜牧与水产系}
+\titlegraphic{\includegraphics[height=.1\textwidth]{img/nmbu.png}}
+
+
+\begin{frame}
+  \frametitle{第二天回顾}
+  \begin{itemize}
+  \item 微效等位基因向后代的传递
+  \item 方差、协方差
+  \item 多元正态分布
+  \item 广义最小二乘的原理
+  \item BLUE 是固定效应的广义最小二乘估计
+  \item BLUP 和混合线性方程组
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{两种协方差}
+  \begingroup
+  \fontsize{8pt}{8pt}\selectfont
+  \begin{columns}
+    \begin{column}{.5\textwidth}
+      \begin{block}{单亲与其一子}
+        \begin{itemize}
+        \item 模型
+          \begin{description}
+          \item [亲] $y_i=\mu+a_i+e_i$
+          \item [子] $y_o=\mu+a_o+e_o'=\mu+\frac{a_i}{2}+e_o$
+          \end{description}
+        \item 协方差
+          \begin{align*}
+            \mathrm{Cov}(y_i, y_o)&=\mathrm{E}(\mu+a_i+e_i-\mu)(\mu+\frac{a_i}{2}+e_o-\mu)\\
+            &=\mathrm{E}(a_i+e_i)(\frac{a_i}{2}+e_o)\\
+            &=\mathrm{E}(a_i\cdot\frac{a_i}{2}+\overbrace{e_i\cdot\frac{a_i}{2}}^0+\overbrace{a_i\cdot e_o}^0+\overbrace{e_i\cdot e_o}^0)\\
+            &=\mathrm{E}\left(\frac{a_i^2}{2}\right) = \frac{\sigma_a^2}{2}
+          \end{align*}
+        \end{itemize}
+      \end{block}
+    \end{column}
+}
+
+
+\frame{
+  \titlepage
+}
+
+
+\section{A 及其逆矩阵}
+\subsection{A 矩阵}
+\begin{frame}
+  \frametitle{两个半同胞个体}
+  \begin{align*}
+    \mathrm{Var}(\mathbf{y}) &= \mathbf{ZGZ'}+\mathbf{R}\\
+    \mathbf{Z}&=\left[\begin{array}{cc}1&0\\0&1\end{array}\right]=\mathbf{I}\\
+    \mathbf{R}&=\mathbf{I}\sigma_e^2\\
+    \mathbf{G}&=\left[\begin{array}{cc}1&.25\\.25&1\end{array}\right]\sigma_a^2\\
+    &={\color{red}\mathbf{A}}\sigma_a^2
+  \end{align*}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{IBD 和 IBS}
+  \begin{description}
+  \item [IBD] Identical by descent. 指两个基因是同一个基因的复制品。
+  \item [IBS] Identical by state. 指两个基因（序列）相同。
+  \end{description}
+  \begin{itemize}
+  \item 通常用一个个体基因组中 IBD 的比例来表示个体的近交程度。
+  \item 通常用两个个体之间的 IBD 比例来表示这两个个体之间的亲缘关系。
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{加性关系矩阵}
+  \begin{columns}
+    \begin{column}{.5\textwidth}
+      \begin{itemize}
+      \item $\mathbf{A}$ 可以用表格法递推
+      \item $\mathbf{A}^{-1}$ 也可以直接构建。
+        \begin{itemize}
+        \item Henderson 1975
+        \item Meuwissen and Luo 1992
+        \end{itemize}
+      \item $\mathbf{A}$ 的元素相当于 Wright 遗传相关的分子
+        \begin{itemize}
+        \item 因此又称分子血缘相关系数矩阵。
+        \end{itemize}
+      \end{itemize}
+    \end{column}
+
+    \pause
+    \begin{column}{.5\textwidth}
+      \begin{table}
+        \caption{一个排序后的系谱示例}
+        \begin{tabular}{ccc}
+          个体 & 父 & 母\\\hline
+          A & - & -\\
+          B & - & -\\
+          C & - & -\\
+          D & A & B\\
+          E & A & C\\
+          F & E & D
+        \end{tabular}
+      \end{table}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{表格法}
+  \begin{columns}
+    \begin{column}{.5\textwidth}
+      \centering
+      \begin{tabular}{c|ccc|ccc}
+        & -,- & -,- & -,- & A,B & A,C & E,D\\
+        & A & B & C & D & E & F\\\hline
+        A & 1 & 0 & 0\\
+        B & 0 & 1 & 0\\
+        C & 0 & 0 & 1\\\hline
+        D & & &\\
+        E & & &\\
+        F & & &
+      \end{tabular}
+    \end{column}
+
+    \begin{column}{.5\textwidth}
+      \begin{itemize}
+      \item 父母未知的个体
+        \begin{itemize}
+        \item 令其对角线为元素 1
+        \item 互相之间的关系为 0
+        \end{itemize}
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{表格法\tiny{续一}}
+  \begin{columns}
+    \begin{column}{.5\textwidth}
+      \centering
+      \begin{tabular}{c|ccc|ccc}
+        & -,- & -,- & -,- & A,B & A,C & E,D\\
+        & A & B & C & D & E & F\\\hline
+        A & 1 & 0 & 0 & .5 & .5 & .5\\
+        B & 0 & 1 & 0 & .5 & 0 & .25\\
+        C & 0 & 0 & 1 & 0 & .5 & .25\\\hline
+        D & .5 & .5 & 0\\
+        E & .5 & 0 & .5\\
+        F & .5 & .25 & .25
+      \end{tabular}
+    \end{column}
+
+    \begin{column}{.5\textwidth}
+      \begin{align*}
+        a_{\mathrm{AD}} = .5(a_{\mathrm{AA}}+a_{\mathrm{AB}}) &= .5(1+0)=.5\\
+        a_{\mathrm{AE}} = .5(a_{\mathrm{AA}}+a_{\mathrm{AC}}) &= .5(1+0)=.5\\
+        a_{\mathrm{AF}} = .5(a_{\mathrm{AE}}+a_{\mathrm{AD}}) &= .5(.5+.5)=.5
+      \end{align*}
+      一般的，若 $j$ 的父母为 $p$ 和 $q$，则：
+      $$\color{red}a_{ij} = .5(a_{ip} + a_{iq})$$
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{表格法\tiny{续二}}
+  \begin{columns}
+    \begin{column}{.5\textwidth}
+      \centering
+      \begin{tabular}{c|ccc|ccc}
+        & -,- & -,- & -,- & A,B & A,C & E,D\\
+        & A & B & C & D & E & F\\\hline
+        A & 1 & 0 & 0 & .5 & .5 & .5\\
+        B & 0 & 1 & 0 & .5 & 0 & .25\\
+        C & 0 & 0 & 1 & 0 & .5 & .25\\\hline
+        D & .5 & .5 & 0 & 1 & .25 & .625\\
+        E & .5 & 0 & .5 & .25 & 1 & .625\\
+        F & .5 & .25 & .25 & .625 & .625 & 1.125
+      \end{tabular}
+    \end{column}
+
+    \begin{column}{.5\textwidth}
+      父母已知的个体，依定义，其近交系数 $F_i$ 为其父母的加性遗传关系的一半。如：
+      $$F_{\mathrm{D}} = .5a_{\mathrm{AB}} = 0$$
+
+      个体 D 与其本身的加性遗传关系为：
+      $$a_{\mathrm{DD}} = 1+F_{\mathrm{D}} = 1+0$$
+      一般的，若个体 $i$ 的父母为 $p$ 和 $q$：
+      $$\color{red}a_{ii} = 1+.5a_{pq}$$
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\subsection{A 的逆矩阵}
+\begin{frame}
+  \frametitle{一般规则}
+  \begin{itemize}
+  \item 当 $\mathbf{A}$ 维数小时，可以直接计算 $\mathbf{A}^{-1}$
+    \begin{itemize}
+    \item 如果是根据（SNP）基因型计算的 $\mathbf{G}$，则只能硬算 $\mathbf{G}^{-1}$
+    \item 或者用特殊的数值算法
+    \end{itemize}
+  \item 根据系谱，有简单的方法直接计算 $\mathbf{A}^{-1}$，而不用计算$\mathbf{A}$
+    \begin{itemize}
+    \item Henderson 1976；Quaas, 1976
+    \end{itemize}
+  \item 见 {\color{cyan}day-3-a-mat.ipynb}
+  \end{itemize}
+\end{frame}
+
+
+\section{模型示例}
+\begin{frame}
+  \frametitle{公牛模型}
+  \begin{columns}
+    \begin{column}{.4\textwidth}
+      $$\mathbf{y=xb+zu+e}$$
+      \begin{itemize}
+      \item 有来自 2 个奶牛场的 2 头公牛的 5 头女儿的记录如下：
+      \end{itemize}
+      \centering
+      \begin{tabular}{rrrr}
+        个体号 & 场 & 公牛 & 表型值\\\hline
+        1 & 1 & 1 & 11\\
+        2 & 1 & 1 & 15\\
+        3 & 2 & 1 & 10\\
+        4 & 1 & 2 & 19\\
+        5 & 2 & 2 & 25
+      \end{tabular}
+    \end{column}
+    
+    \pause
+    \begin{column}{.6\textwidth}
+      $$
+      \color{cyan}\left[\begin{array}{ll}
+          \mathbf{X}'\mathbf{X} & \mathbf{X}'\mathbf{Z}\\
+          \mathbf{Z}'\mathbf{X} & \mathbf{Z}'\mathbf{Z}+\mathbf{A}^{-1}\lambda
+        \end{array}\right]
+      \left[\begin{array}{cc}
+          \hat{\mathbf{b}}\\
+          \hat{\mathbf{u}}
+        \end{array}\right] = 
+      \left[\begin{array}{c}
+          \mathbf{X}'\mathbf{y}\\
+          \mathbf{Z}'\mathbf{y}
+        \end{array}\right]
+      $$
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{线性混合模型观测值举例}
+  \begin{itemize}
+  \item 公牛模型
+  \end{itemize}
+  $$
+  \begin{array}{ccccccccc}
+    \mathbf{y} & = & \mathbf{y} & = & \mathbf{Xb} & + & \mathbf{Zu} & + & \mathbf{e}\\
+    \left[\begin{array}{c}
+        y_{111}\\
+        y_{112}\\
+        y_{213}\\
+        y_{121}\\
+        y_{222}
+      \end{array}\right] & = &
+    \left[\begin{array}{c}
+        11\\
+        15\\
+        10\\
+        19\\
+        25
+      \end{array}\right] & = &
+    \left[\begin{array}{cc}
+        1 & 0\\
+        1 & 0\\
+        0 & 1\\
+        1 & 0\\
+        0 & 1
+      \end{array}\right]
+    \left[\begin{array}{c}b_1\\b_2\end{array}\right] & + &
+    \left[\begin{array}{cc}
+        1 & 0\\
+        1 & 0\\
+        1 & 0\\
+        0 & 1\\
+        0 & 1
+      \end{array}\right]
+    \left[\begin{array}{c}u_1\\u_2\end{array}\right] & + &
+    \left[\begin{array}{c}
+        e_{111}\\
+        e_{112}\\
+        e_{213}\\
+        e_{121}\\
+        e_{222}
+      \end{array}\right]
+  \end{array}
+  $$
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{混合线性模型方程组}
+  \begin{columns}
+    \begin{column}{.4\textwidth}
+      令 $h^2=.25$
+      \begin{align*}
+        \lambda &= \frac{\sigma_e^2}{\sigma_u^2}\\
+        &=\frac{(1-.25h^2)\sigma_P^2}{.25h^2\sigma_P^2}\\
+        &=\frac{1-.25h^2}{.25h^2}\\
+        &=\frac{4-h^2}{h^2}\\
+        &=\frac{4-.25}{.25}=15
+      \end{align*}
+    \end{column}
+
+    \begin{column}{.6\textwidth}
+      若两头公牛无亲缘关系，则 $\mathbf{A=I=A}^{-1}$：
+      
+      $$
+      \left[\begin{array}{cccc}
+          3 & 0 & 2 & 1\\
+          0 & 2 & 1 & 1\\
+          2 & 1 & 3+\lambda & 0\\
+          1 & 1 & 0 & 2+\lambda
+        \end{array}\right]
+      \left[\begin{array}{c}
+          \hat{b}_1\\
+          \hat{b}_2\\
+          \hat{u}_1\\
+          \hat{u}_2
+        \end{array}\right]=
+      \left[\begin{array}{c}
+          45\\
+          35\\
+          36\\
+          44
+        \end{array}\right]
+      $$
+      
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{MME}
+  \begin{columns}
+    \begin{column}{.6\textwidth}
+      $$
+      \left[\begin{array}{rrrr}
+          3 & 0 & 2 & 1\\
+          0 & 2 & 1 & 1\\
+          2 & 1 & 18 & 0\\
+          1 & 1 & 0 & 17
+        \end{array}\right]
+      \left[\begin{array}{c}
+          \hat{b}_1\\
+          \hat{b}_2\\
+          \hat{u}_1\\
+          \hat{u}_2
+        \end{array}\right]=
+      \left[\begin{array}{c}
+          45\\
+          35\\
+          36\\
+          44
+        \end{array}\right]
+      $$
+
+    \end{column}
+    \pause
+    \begin{column}{.4\textwidth}
+      
+      $$
+      \left[\begin{array}{c}
+          \hat{b}_1\\
+          \hat{b}_2\\
+          \hat{u}_1\\
+          \hat{u}_2
+        \end{array}\right]=
+      \left[\begin{array}{r}
+          15.22\\
+          17.50\\
+          -0.66\\
+          0.66
+        \end{array}\right]
+      $$
+      
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{动物模型}
+  \begin{columns}
+    \begin{column}{.5\textwidth}
+      \begin{block}{模型}
+        $$y_i = \mu+a_i+e_i$$
+      \end{block}
+      \begin{block}{假设}
+        \begin{enumerate}
+        \item 群体足够大
+        \item 后代无选择
+        \item 假定只有加性作用
+        \item 除了模型中的效应，无其它作用
+        \end{enumerate}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{.5\textwidth}
+      \begin{align*}
+        \mathrm{E}(a_i) &= 0,\qquad \mathrm{E}(e_i)=0\\
+        \mathrm{Var}(a_i) &=\sigma_a^2\\
+        \mathrm{Var}(e_i) &=\sigma_e^2\\
+        \mathrm{Var}(\mathbf{a}) &= \mathbf{A}\sigma_a^2\\
+        h^2 &=\frac{\sigma_a^2}{\sigma_a^2+\sigma_e^2}\\
+        \lambda &=\frac{\sigma_e^2}{\sigma_a^2}
+      \end{align*}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{示例}
+  \begin{columns}
+    \begin{column}{.8\textwidth}
+      \centering
+      \begin{tabular}{cccc|cccc}
+        ID & Pa & Ma & PT & ID & Pa & Ma & PT \\\hline
+        1 & 0 & 0 &  -   &  9 & 5 & 6 & 36.0\\
+        2 & 0 & 0 &  -   & 10 & 7 & 8 & 66.4\\
+        3 & 0 & 0 &  -   & 11 & 5 & 8 & 28.9\\
+        4 & 0 & 0 &  -   & 12 & 7 & 6 & 73.0\\
+        5 & 1 & 2 & 38.5 & 13 & 1 & 6 & 44.2\\
+        6 & 3 & 4 & 48.9 & 14 & 3 & 8 & 53.4\\
+        7 & 3 & 2 & 64.3 & 15 & 5 & 4 & 33.6\\
+        8 & 1 & 4 & 50.5 & 16 & 7 & 8 & 49.5 
+      \end{tabular}
+    \end{column}
+
+    \begin{column}{.2\textwidth}
+      \begin{align*}
+        \sigma_a^2&=36\\
+        \sigma_e^2&=64\\
+        h^2 &=.36\\
+        \lambda&=\frac{16}{9}
+      \end{align*}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{每个表型观测值的模型}
+  \begingroup
+  \fontsize{7pt}{7pt}\selectfont
+  $$
+  \left[\begin{array}{c}
+      1\\1\\1\\1\\1\\1\\1\\1\\1\\1\\1\\1
+    \end{array}\right]\mu+
+  \left[\begin{array}{cccccccccccccccc}
+      0 & 0 & 0 & 0 & {\color{cyan}1} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+      0 & 0 & 0 & 0 & 0 & {\color{cyan}1} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+      0 & 0 & 0 & 0 & 0 & 0 & {\color{cyan}1} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & {\color{cyan}1} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & {\color{cyan}1} & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & {\color{cyan}1} & 0 & 0 & 0 & 0 & 0 & 0\\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & {\color{cyan}1} & 0 & 0 & 0 & 0 & 0\\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & {\color{cyan}1} & 0 & 0 & 0 & 0\\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & {\color{cyan}1} & 0 & 0 & 0\\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & {\color{cyan}1} & 0 & 0\\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & {\color{cyan}1} & 0\\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & {\color{cyan}1}
+    \end{array}\right]
+  \left[\begin{array}{l}
+      u_1 \\
+      u_2 \\
+      u_3 \\
+      u_4 \\
+      u_5 \\
+      u_6 \\
+      u_7 \\
+      u_8 \\
+      u_9 \\
+      u_{10}\\
+      u_{11}\\
+      u_{12}\\
+      u_{13}\\
+      u_{14}\\
+      u_{15}\\
+      u_{16}
+    \end{array}\right]+
+  \left[\begin{array}{c}
+      e_5\\
+      e_6\\
+      e_7\\
+      e_8\\
+      e_9\\
+      e_{10}\\
+      e_{11}\\
+      e_{12}\\
+      e_{13}\\
+      e_{14}\\
+      e_{15}\\
+      e_{16}
+    \end{array}\right]=
+  \left[\begin{array}{c}
+      38.5\\
+      48.9\\
+      64.3\\
+      50.5\\
+      36.0\\
+      66.4\\
+      28.9\\
+      73.0\\
+      44.2\\
+      53.4\\
+      33.6\\
+      49.5
+    \end{array}\right]
+  $$
+  \endgroup
+\end{frame}
+
+
+\begin{frame}
+  \begingroup
+  \fontsize{8pt}{8pt}\selectfont
+  $$
+  \mathbf{A}=\frac{1}{16}\left[\begin{array}{rrrrrrrrrrrrrrrr}
+      16\\
+      0 & 16 &  &  &  & & s & y & m & m & e & t & r & y\\
+      0 & 0 & 16\\
+      0 & 0 & 0 & 16\\
+      8 & 8 & 0 & 0 & 16\\
+      0 & 0 & 8 & 8 & 0 & 16\\
+      0 & 8 & 8 & 0 & 4 & 4 & 16\\
+      8 & 0 & 0 & 8 & 4 & 4 & 0 & 16\\
+      4 & 4 & 4 & 4 & 8 & 8 & 4 & 4 & 16\\
+      4 & 4 & 4 & 4 & 4 & 4 & 8 & 8 & 4 & 16\\
+      8 & 4 & 0 & 4 & 10 & 2 & 2 & 10 & 6 & 6 & 18\\
+      0 & 4 & 8 & 4 & 2 & 10 & 10 & 2 & 6 & 6 & 2 & 18\\
+      8 & 0 & 4 & 4 & 4 & 8 & 2 & 6 & 6 & 4 & 5 & 5 & 16\\
+      4 & 0 & 8 & 4 & 2 & 6 & 4 & 8 & 4 & 6 & 5 & 5 & 5 & 16\\
+      4 & 4 & 0 & 8 & 8 & 4 & 2 & 6 & 6 & 4 & 7 & 3 & 4 & 3 & 16\\
+      4 & 4 & 4 & 4 & 4 & 4 & 8 & 8 & 4 & 8 & 6 & 6 & 4 & 6 & 4 & 16
+    \end{array}\right]
+  $$
+  $\mathbf{X,\,Z,\,y}$ 已知，$\mathbf{G=A}_{16}\sigma_a^2$，$\mathbf{R=I}_{12}\sigma_e^2$
+  \endgroup
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{混合线性模型方程组}
+  $$
+  \color{cyan}\left[\begin{array}{ll}
+      \mathbf{X}'\mathbf{X} & \mathbf{X}'\mathbf{Z}\\
+      \mathbf{Z}'\mathbf{X} & \mathbf{Z}'\mathbf{Z}+\mathbf{A}^{-1}\lambda
+    \end{array}\right]
+  \left[\begin{array}{cc}
+      \hat{\mathbf{b}}\\
+      \hat{\mathbf{u}}
+    \end{array}\right] = 
+  \left[\begin{array}{c}
+      \mathbf{X}'\mathbf{y}\\
+      \mathbf{Z}'\mathbf{y}
+    \end{array}\right]
+  $$
+\end{frame}
+
+\section{基因组选择简介}
+\begin{frame}
+  \begin{columns}
+    \begin{column}{.5\textwidth}
+      \begin{block}{若干概念}
+        \begin{description}
+        \item [EBV] 传统的估计育种值，如来自 BLUP 的。
+        \item [DGV] Direct genmoic BV.
+        \item [GEBV] Genomically enhanced/enabled/estimated BV
+        \item [SNP] Single nucleotype polymorphism
+        \item [Chips] 芯片
+        \end{description}
+      \end{block}
+    \end{column}
+
+    \pause
+    \begin{column}{.5\textwidth}
+      \begin{block}{一个著名结果}
+        \begin{table}
+          \caption{Meuwissen et al., 2001}
+          \begin{tabular}{rcc}
+            & $r_{\mathrm{TBV,EBV}}$ & $b_{\mathrm{TBV,EBV}}$\\\hline
+            LS & 0.32 & 0.29\\
+            genomic BLUP & 0.73 & 0.90\\
+            Bayes A & 0.80 & 0.83\\
+            Bayes B & 0.85 & 0.95
+          \end{tabular}
+        \end{table}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{基因型信息}
+  \begin{block}{基因组选择之前}
+    \begin{itemize}
+    \item 用于淘汰或固定某些基因，例如遗传缺陷、疾病
+    \item 有一些标记被用于标记辅助选择，以改进育种值的估计
+    \end{itemize}
+  \end{block}
+
+  \pause
+  \begin{block}{基因组选择}
+    \begin{itemize}
+    \item 用到成千上万的基因座位
+    \item 对单个基因的作用通常不再感兴趣
+    \item 目的要完全通过这些标记基因（与 QTL 的 LD）来估计育种值
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{一般模型}
+  $$\mathbf{y=1_n\mu+Zg+e}$$
+  \begin{itemize}
+  \item 其中
+    \begin{description}
+    \item [$\mathbf{y}$] $n\times 1$ 观察值向量
+    \item [$\mathbf{1}_n$] 元素为 1 的向量
+    \item [$\mu$] 未知的一般平均数
+    \item [$\mathbf{Z}$] $n\times m$ 的标记基因型矩阵
+    \item [$\mathbf{g}$] $m\times 1$ （随机的）SNP 标记效应
+    \item [$\mathbf{e}$] 随机残差向量
+    \end{description}
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{基因组选择}
+  \begin{itemize}
+  \item 需要的数据
+    \begin{itemize}
+    \item 基因型
+    \item 表现型
+    \item 系谱【可选】
+    \end{itemize}
+  \item 关于 $\mathbf{Z}$
+    \begin{itemize}
+    \item 筛除低质量的标记
+    \item 有很多基因型缺失的座位（如：$>20$\%）
+    \item 设置 MAF，如 1\%
+    \item 缺失基因型的填充（imputation）
+    \item 根据系谱检查基因型的正确性。
+    \item 去除有争议的基因型
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+
+\section{SNP-BLUP}
+\begin{frame}
+  \frametitle{SNP-BLUP}
+  \begin{columns}
+    \begin{column}{.5\textwidth}
+      $$\mathbf{y=1_n\mu+Zg+e}$$
+      \begin{itemize}
+      \item 其中
+        \begin{description}
+        \item [$\mathbf{y}$] $n\times 1$ 观察值向量
+        \item [$\mathbf{1}_n$] 元素为 1 的向量
+        \item [$\mu$] 未知的一般平均数
+        \item [$\mathbf{Z}$] $n\times m$ 的标记基因型矩阵
+        \item [$\mathbf{g}$] $m\times 1$ （随机的）SNP 标记效应
+        \item [$\mathbf{e}$] 随机残差向量
+        \end{description}
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{.5\textwidth}
+      \begin{itemize}
+      \item 假定：
+        \begin{description}
+        \item [$\mathbf{e}\sim\mathrm{MVN}(\mathbf{0}, \mathbf{R})$] 其中 $\mathbf{R=R}_0\sigma_e^2$，且残差方差 $\sigma_e^2$ 已知。
+        \item [$\mathbf{g}\sim\mathrm{MVN}(\mathbf{0}, \mathbf{I}\sigma_g^2)$] 有已知的 $\sigma_g^2$。
+        \end{description}
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{SNP-BLUP 混合模型方程组}
+  \begin{columns}
+    \begin{column}{.6\textwidth}
+      \begin{block}{估计标记基因型效应的 MME}
+        $$
+        \left[\begin{array}{ll}
+            \mathbf{1}'\mathbf{R}^{-1}\mathbf{1} & \mathbf{1}'\mathbf{R}^{-1}\mathbf{Z}\\
+            \mathbf{Z}'\mathbf{R}^{-1}\mathbf{1} & \mathbf{Z}'\mathbf{R}^{-1}\mathbf{Z}+\mathbf{I}^{-1}/\sigma_g^2
+          \end{array}\right]
+        \left[\begin{array}{cc}
+            \hat{\mathbf{\mu}}\\
+            \hat{\mathbf{g}}
+          \end{array}\right] = 
+        \left[\begin{array}{c}
+            \mathbf{1}'\mathbf{R}^{-1}\mathbf{y}\\
+            \mathbf{Z}'\mathbf{R}^{-1}\mathbf{y}
+          \end{array}\right]
+        $$
+      \end{block}
+
+      \begin{block}{当 $\mathbf{R=I}\sigma_e^2$, $\lambda=\frac{\sigma_e^2}{\sigma_g^2}$}
+        $$
+        \left[\begin{array}{ll}
+            \mathbf{1}'\mathbf{1} & \mathbf{1}'\mathbf{Z}\\
+            \mathbf{Z}'\mathbf{1} & \mathbf{Z}'\mathbf{Z}+\mathbf{I}\lambda
+          \end{array}\right]
+        \left[\begin{array}{cc}
+            \hat{\mathbf{b}}\\
+            \hat{\mathbf{u}}
+          \end{array}\right] = 
+        \left[\begin{array}{c}
+            \mathbf{X}'\mathbf{y}\\
+            \mathbf{Z}'\mathbf{y}
+          \end{array}\right]
+        $$
+      \end{block}
+    \end{column}
+
+    \pause
+    \begin{column}{.4\textwidth}
+      \begin{itemize}
+      \item 基因组育种值
+        \begin{itemize}
+        \item 训练组（training set）
+          $$\hat{\mathbf{u}}_t = \mathbf{1}\hat{\mu}+\mathbf{Z}_t\hat{\mathbf{g}}$$
+        \item 候选组（candidate set）
+          $$\hat{\mathbf{u}}_c = \mathbf{1}\hat{\mu}+\mathbf{Z}_c\hat{\mathbf{g}}$$
+        \end{itemize}
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\section{G-BLUP}
+\begin{frame}
+  \frametitle{G-BLUP}
+  \begin{columns}
+    \begin{column}{.5\textwidth}
+      \begin{block}{G-BLUP}
+        \begin{itemize}
+        \item 直接估计育种值，而不估计标记效应
+        \item 使用基因组（关系）矩阵
+        \item 得到与 SNP-BLUP 相同的结果
+        \end{itemize}
+      \end{block}
+    \end{column}
+
+    \pause
+    \begin{column}{.5\textwidth}
+      \begin{block}{由 $\mathbf{a=Zg}$}
+        \begin{align*}
+          \mathbf{y} &=\mathbf{1\mu+a+e}\\
+          &\Rightarrow\mathrm{Var}(\mathbf{a})=\mathrm{Var}(\mathbf{Zg})=\mathbf{Z}\mathrm{Var}(\mathbf{g})\mathbf{Z}'\\
+          \textrm{if } & \mathrm{Var}(\mathbf{g}) =\mathbf{I}\sigma_g^2\\
+          & \Rightarrow\mathbf{a}\sim\mathrm{MVN}(\mathbf{0,G}\sigma_g^2)\\
+          \textrm{where } &\mathbf{G=ZZ}'
+        \end{align*}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{所有个体的 G-BLUP}
+  与动物模型相似，候选个体有基因组信息，但是没有观测结果。
+
+  我们假定：
+
+  $$\mathbf{y=1\mu+Wa+e}$$
+
+  $\mathbf{W}$ 是 $n\times q$的指示矩阵。
+
+  $q=n_t+n_c$。其中 $n_t$ 是有观测值的训练组。$n_c$ 是有基因型无表型观测值的候选群体。
+
+  $\mathbf{a=Zg}$, $\mathbf{Z}=\left[\begin{array}{c}\mathbf{Z}_t\\\mathbf{Z}_c\end{array}\right]$, $\mathbf{a} = \left[\begin{array}{c}\mathbf{a}_t\\\mathbf{a}_c\end{array}\right]$。  \pause$\mathbf{a}\sim\mathrm{MVN}(\mathbf{0,G}\sigma_g^2)$, $\mathbf{G=ZZ}'$
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{MME, 仅训练组}
+  \begin{block}{MME}
+    $$
+    \left[\begin{array}{ll}
+        \mathbf{1}'_n\mathbf{R}^{-1}\mathbf{1}_n & \mathbf{1}'_n\mathbf{R}^{-1}\\
+        \mathbf{R}^{-1}\mathbf{1}_n & \mathbf{R}^{-1}+\mathbf{G}^{-1}_t/\sigma_g^2
+      \end{array}\right]
+    \left[\begin{array}{c}
+        \hat{\mu}\\\hat{\mathbf{a}}_t
+      \end{array}\right]=
+    \left[\begin{array}{c}
+        \mathbf{1}'_n\mathbf{R}^{-1}\mathbf{y}\\\mathbf{R}^{-1}\mathbf{y}
+      \end{array}\right]
+    $$
+  \end{block}
+  
+  \begin{block}{当 $\mathbf{R=I}\sigma_e^2$}
+    $$
+    \left[\begin{array}{ll}
+        \mathbf{1}'_n\mathbf{1}_n & \mathbf{1}'_n\\
+        \mathbf{1}_n & \mathbf{I}_n+\lambda\mathbf{G}^{-1}_t
+      \end{array}\right]
+    \left[\begin{array}{c}
+        \hat{\mu}\\\hat{\mathbf{a}}_t
+      \end{array}\right]=
+    \left[\begin{array}{c}
+        \mathbf{1}'_n\mathbf{y}\\\mathbf{y}
+      \end{array}\right]
+    $$
+
+    $\lambda=\frac{\sigma_e^2}{\sigma_g^2}$
+  \end{block}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{MME, 所有个体}
+  \begin{block}{MME}
+    $$
+    \left[\begin{array}{ll}
+        \mathbf{1}'_n\mathbf{R}^{-1}\mathbf{1}_n & \mathbf{1}'_n\mathbf{R}^{-1}\mathbf{W}\\
+        \mathbf{W}'\mathbf{R}^{-1}\mathbf{1}_n & \mathbf{W}'\mathbf{R}^{-1}\mathbf{W}+\mathbf{G}^{-1}_t/\sigma_g^2
+      \end{array}\right]
+    \left[\begin{array}{c}
+        \hat{\mu}\\\hat{\mathbf{a}}_t
+      \end{array}\right]=
+    \left[\begin{array}{c}
+        \mathbf{1}'_n\mathbf{R}^{-1}\mathbf{y}\\\mathbf{W}'\mathbf{R}^{-1}\mathbf{y}
+      \end{array}\right]
+    $$
+  \end{block}
+  
+  \begin{block}{当 $\mathbf{R=I}\sigma_e^2$}
+    $$
+    \left[\begin{array}{ll}
+        \mathbf{1}'_n\mathbf{1}_n & \mathbf{1}'_n\mathbf{W}\\
+        \mathbf{W}'\mathbf{1}_n & \mathbf{W'W}+\lambda\mathbf{G}^{-1}_t
+      \end{array}\right]
+    \left[\begin{array}{c}
+        \hat{\mu}\\\hat{\mathbf{a}}_t
+      \end{array}\right]=
+    \left[\begin{array}{c}
+        \mathbf{1}'_n\mathbf{y}\\\mathbf{W}'\mathbf{y}
+      \end{array}\right]
+    $$
+
+    由于 $\mathbf{a}'=[\mathbf{a}'_t\,\mathbf{a}'_c]\Rightarrow\mathbf{W}=[\mathbf{I\,0}]$
+  \end{block}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{MME, 所有个体}
+  $$
+  \left[\begin{array}{ccc}
+      \mathbf{1}'_n\mathbf{1}_n & \mathbf{1}'_n & \mathbf{0}\\
+      \mathbf{1}_n & \mathbf{I}_n+\lambda\{\mathbf{G}^{-1}\}_{tt} & \lambda\{\mathbf{G}^{-1}\}_{tc}\\
+      \mathbf{0} & \lambda\{\mathbf{G}^{-1}\}_{ct} & \lambda\{\mathbf{G}^{-1}\}_{cc}
+    \end{array}\right]
+  \left[\begin{array}{c}
+      \hat{\mu}\\\hat{\mathbf{a}}
+    \end{array}\right]=
+  \left[\begin{array}{c}
+      \mathbf{1}'_n\mathbf{y}\\\mathbf{y}\\\mathbf{0}
+    \end{array}\right]
+  $$
+
+  其中
+
+  $$
+  \mathbf{G}^{-1}=\left[\begin{array}{cc}
+      \{\mathbf{G}^{-1}\}_{tt} & \{\mathbf{G}^{-1}\}_{tc}\\
+      \{\mathbf{G}^{-1}\}_{ct} & \{\mathbf{G}^{-1}\}_{cc}
+    \end{array}\right]
+  $$
+      
+\end{frame}
+
+\end{document}
