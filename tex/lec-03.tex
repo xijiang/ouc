@@ -22,21 +22,6 @@
   \end{frame}
 }
 
-\AtBeginSubsection[]
-{
-  \begin{frame}
-    \frametitle{目录}  %\insertsection to display section title                                                                             
-    \tableofcontents[currentsubsection]
-  \end{frame}
-}
-
-\addtobeamertemplate{navigation symbols}{}{%
-  \usebeamerfont{footline}%
-  \usebeamercolor[fg]{footline}%
-  \hspace{1em}%
-  \insertframenumber/\inserttotalframenumber
-}
-%\setbeamercovered{invisible}
 
 \begin{document}
 
@@ -58,32 +43,6 @@
   \item BLUP 和混合线性方程组
   \end{itemize}
 \end{frame}
-
-
-\begin{frame}
-  \frametitle{两种协方差}
-  \begingroup
-  \fontsize{8pt}{8pt}\selectfont
-  \begin{columns}
-    \begin{column}{.5\textwidth}
-      \begin{block}{单亲与其一子}
-        \begin{itemize}
-        \item 模型
-          \begin{description}
-          \item [亲] $y_i=\mu+a_i+e_i$
-          \item [子] $y_o=\mu+a_o+e_o'=\mu+\frac{a_i}{2}+e_o$
-          \end{description}
-        \item 协方差
-          \begin{align*}
-            \mathrm{Cov}(y_i, y_o)&=\mathrm{E}(\mu+a_i+e_i-\mu)(\mu+\frac{a_i}{2}+e_o-\mu)\\
-            &=\mathrm{E}(a_i+e_i)(\frac{a_i}{2}+e_o)\\
-            &=\mathrm{E}(a_i\cdot\frac{a_i}{2}+\overbrace{e_i\cdot\frac{a_i}{2}}^0+\overbrace{a_i\cdot e_o}^0+\overbrace{e_i\cdot e_o}^0)\\
-            &=\mathrm{E}\left(\frac{a_i^2}{2}\right) = \frac{\sigma_a^2}{2}
-          \end{align*}
-        \end{itemize}
-      \end{block}
-    \end{column}
-}
 
 
 \frame{
